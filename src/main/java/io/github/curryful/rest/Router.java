@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -88,11 +87,4 @@ public final class Router {
             return Try.failure(e);
         }
     };
-
-    public static void main(String[] args) {
-        var routes = new HashMap<Destination, Endpoint>();
-        routes.put(new Destination(HttpMethod.GET, "/hello"), _context -> new HttpResponse<>(HttpResponseCode.OK, "Hello World!"));
-
-        listen.apply(routes).apply(8080);
-    }
 }
