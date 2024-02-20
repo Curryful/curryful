@@ -1,4 +1,4 @@
-package io.github.curryful.model;
+package io.github.curryful.rest;
 
 import io.github.curryful.commons.Maybe;
 

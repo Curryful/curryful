@@ -1,4 +1,4 @@
-package io.github.curryful.model;
+package io.github.curryful.rest;
 
 public final class Destination {
     

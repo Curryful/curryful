@@ -1,4 +1,4 @@
-package io.github.curryful.util;
+package io.github.curryful.rest;
 
 public class Pair<A, B> {
 

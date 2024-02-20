@@ -16,11 +16,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.github.curryful.commons.Try;
-import io.github.curryful.model.Destination;
-import io.github.curryful.model.HttpContext;
-import io.github.curryful.model.HttpMethod;
-import io.github.curryful.model.HttpResponse;
-import io.github.curryful.model.HttpResponseCode;
 
 public final class Router {
 

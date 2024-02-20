@@ -1,4 +1,4 @@
-package io.github.curryful.model;
+package io.github.curryful.rest;
 
 import java.util.Map;
 

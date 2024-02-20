@@ -9,8 +9,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import io.github.curryful.commons.Maybe;
-import io.github.curryful.model.HttpResponse;
-import io.github.curryful.util.Pair;
 
 public final class Http {
 
