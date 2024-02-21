@@ -22,7 +22,7 @@ public final class Router {
     private static final Endpoint notFound = _context -> new HttpResponse<>(HttpResponseCode.NOT_FOUND);
 
     private static final Function<
-        Map<Destination, Endpoint>,
+        List<Pair<Destination, Endpoint>>,
         Function<
             List<String>,
             HttpResponse<?>
@@ -39,9 +39,13 @@ public final class Router {
             return new HttpResponse<>(HttpResponseCode.BAD_REQUEST);
         }
 
-        var route = routes.getOrDefault(new Destination(httpMethod.getValue(), path.getValue()), notFound);
+		var destination = new Destination(httpMethod.getValue(), path.getValue());
+        var route = routes.stream().filter(pair -> pair.getFirst().matches(destination)).findFirst().orElse(notFound);
 
-        return route.apply(new HttpContext(headers, content));
+		var pathParameters = new HashMap<String, String>();
+		var queryParameters = new HashMap<String, String>();
+
+        return route.apply(new HttpContext(pathParameters, queryParameters, headers, content));
     };
 
     public static final Function<

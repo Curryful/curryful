@@ -10,19 +10,9 @@ public final class Destination {
         this.uri = uri;
     }
 
-    @Override
-    public int hashCode() {
-        return (method.toString() + uri).hashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof Destination)) {
-            return false;
-        }
-
-        return hashCode() == other.hashCode();
-    }
+	public boolean matches(Destination other) {
+		return method.equals(other.method) && true;
+	}
 
     public HttpMethod getMethod() {
         return method;

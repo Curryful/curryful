@@ -6,17 +6,29 @@ import io.github.curryful.commons.Maybe;
 
 public final class HttpContext {
 
-    private final Maybe<Map<String, String>> headers;
+	private final Map<String, String> pathParameters;
+	private final Map<String, String> queryParameters;
+    private final Map<String, String> headers;
     private final Maybe<String> content;
 
-    public HttpContext(Maybe<Map<String, String>> headers, Maybe<String> content) {
+    public HttpContext(Map<String, String> pathParameters, Map<String, String> queryParameters, Map<String, String> headers, Maybe<String> content) {
+		this.pathParameters = pathParameters;
+		this.queryParameters = queryParameters;
         this.headers = headers;
         this.content = content;
     }
 
-    public Maybe<Map<String, String>> getHeaders() {
-        return headers;
-    }
+	public Map<String, String> getPathParameters() {
+		return pathParameters;
+	}
+
+	public Map<String, String> getQueryParameters() {
+		return queryParameters;
+	}
+
+    public Map<String, String> getHeaders() {
+    	return headers;
+    } 
 
     public Maybe<String> getContent() {
         return content;
