@@ -18,6 +18,10 @@ public final class HttpContext {
         this.content = content;
     }
 
+    public static final HttpContext empty() {
+        return new HttpContext(Map.of(), Map.of(), Map.of(), Maybe.none());
+    }
+
 	public Map<String, String> getPathParameters() {
 		return pathParameters;
 	}

@@ -63,10 +63,9 @@ public class HttpTest {
 		var result = getHeaders.apply(rawHttpPost.stream());
 
 		// Assert
-		assertTrue(result.hasValue());
-		assertEquals(expected, result.getValue());
+		assertEquals(expected, result);
 	}
-	
+
 	@Test
 	public void testGetHeadersGet() {
 		// Arrange
@@ -79,8 +78,7 @@ public class HttpTest {
 		var result = getHeaders.apply(rawHttpGet.stream());
 
 		// Assert
-		assertTrue(result.hasValue());
-		assertEquals(expected, result.getValue());
+		assertEquals(expected, result);
 	}
 
 	@Test

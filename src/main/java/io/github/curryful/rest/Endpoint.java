@@ -1,7 +1,24 @@
 package io.github.curryful.rest;
 
-import java.util.function.Function;
+public final class Endpoint {
 
-public interface Endpoint extends Function<HttpContext, HttpResponse<?>> {
-    // noop
+    private final Destination destination;
+    private final RestFunction restFunction;
+
+    private Endpoint(Destination destination, RestFunction restFunction) {
+        this.destination = destination;
+        this.restFunction = restFunction;
+    }
+
+    public static Endpoint of(Destination destination, RestFunction restFunction) {
+        return new Endpoint(destination, restFunction);
+    }
+
+    public Destination getDestination() {
+        return destination;
+    }
+
+    public RestFunction getRestFunction() {
+        return restFunction;
+    }
 }

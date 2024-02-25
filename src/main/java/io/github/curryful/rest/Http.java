@@ -38,7 +38,7 @@ public final class Http {
      * Get the headers of an HTTP request.
      * Takes the request as a string and returns the headers as a map.
      */
-    public static final Function<Stream<String>, Maybe<Map<String, String>>> getHeaders = stream -> {
+    public static final Function<Stream<String>, Map<String, String>> getHeaders = stream -> {
         var regex = "(\\S+): (.*)";
         var pattern = Pattern.compile(regex);
 
@@ -52,15 +52,13 @@ public final class Http {
             }
         };
 
-        var map = stream
-                .skip(1)
-                .takeWhile(l -> !l.isEmpty())
-                .map(headerAsPair)
-                .filter(Maybe::hasValue)
-                .map(Maybe::getValue)
-                .collect(toUnmodifiableMap(Pair::getFirst, Pair::getSecond));
-
-        return Maybe.just(map);
+		return stream
+				.skip(1)
+				.takeWhile(l -> !l.isEmpty())
+				.map(headerAsPair)
+				.filter(Maybe::hasValue)
+				.map(Maybe::getValue)
+				.collect(toUnmodifiableMap(Pair::getFirst, Pair::getSecond));
     };
 
     /**

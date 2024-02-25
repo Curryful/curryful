@@ -1,6 +1,6 @@
 package io.github.curryful.rest;
 
-public class Pair<A, B> {
+public final class Pair<A, B> {
 
     private final A first;
     private final B second;

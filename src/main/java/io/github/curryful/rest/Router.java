@@ -5,24 +5,27 @@ import static io.github.curryful.rest.Http.getContent;
 import static io.github.curryful.rest.Http.getHeaders;
 import static io.github.curryful.rest.Http.getMethod;
 import static io.github.curryful.rest.Http.getPath;
+import static java.util.regex.Pattern.compile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import io.github.curryful.commons.Maybe;
 import io.github.curryful.commons.Try;
 
 public final class Router {
 
-    private static final Endpoint notFound = _context -> new HttpResponse<>(HttpResponseCode.NOT_FOUND);
+    private static final RestFunction notFound = _context -> new HttpResponse<>(HttpResponseCode.NOT_FOUND);
 
     private static final Function<
-        List<Pair<Destination, Endpoint>>,
+        List<Endpoint>,
         Function<
             List<String>,
             HttpResponse<?>
@@ -40,16 +43,35 @@ public final class Router {
         }
 
 		var destination = new Destination(httpMethod.getValue(), path.getValue());
-        var route = routes.stream().filter(pair -> pair.getFirst().matches(destination)).findFirst().orElse(notFound);
+        var route = Maybe.from(routes
+				.stream()
+				.filter(pair -> pair.getDestination().matches(destination))
+				.findFirst());
+
+        if (!route.hasValue()) {
+            return notFound.apply(HttpContext.empty());
+        }
+
+        var unpackedRoute = route.getValue();
+
+        var regex = UriUtils.replaceFormalParametersWithRegex(unpackedRoute.getDestination().getUri());
+        var matcher = compile(regex).matcher(destination.getUri());
 
 		var pathParameters = new HashMap<String, String>();
-		var queryParameters = new HashMap<String, String>();
 
-        return route.apply(new HttpContext(pathParameters, queryParameters, headers, content));
+		if (matcher.find()) {
+			var namedGroups = matcher.namedGroups();
+			pathParameters = namedGroups.keySet()
+                    .stream()
+                    .map(key -> Pair.of(key, matcher.group(key)))
+                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getSecond()), Map::putAll);
+		}
+
+        return unpackedRoute.getRestFunction().apply(new HttpContext(pathParameters, Map.of(), headers, content));
     };
 
     public static final Function<
-        Map<Destination, Endpoint>,
+        List<Endpoint>,
         Function<
             Integer,
             Try<Void>
