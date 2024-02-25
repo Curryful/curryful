@@ -5,16 +5,15 @@ import static io.github.curryful.rest.Http.getContent;
 import static io.github.curryful.rest.Http.getHeaders;
 import static io.github.curryful.rest.Http.getMethod;
 import static io.github.curryful.rest.Http.getPath;
-import static java.util.regex.Pattern.compile;
+import static io.github.curryful.rest.Uri.getPathParameters;
+import static io.github.curryful.rest.Uri.getQueryParameters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import io.github.curryful.commons.Maybe;
@@ -30,7 +29,7 @@ public final class Router {
             List<String>,
             HttpResponse<?>
         >
-    > process = routes -> rawHttp -> {
+    > process = endpoints -> rawHttp -> {
         var method = getMethod.apply(rawHttp.stream());
         var path = getPath.apply(rawHttp.stream());
         var headers = getHeaders.apply(rawHttp.stream());
@@ -42,32 +41,22 @@ public final class Router {
             return new HttpResponse<>(HttpResponseCode.BAD_REQUEST);
         }
 
-		var destination = new Destination(httpMethod.getValue(), path.getValue());
-        var route = Maybe.from(routes
+        var actualUri = path.getValue();
+		var actualDestination = new Destination(httpMethod.getValue(), actualUri);
+
+        var endpoint = Maybe.from(endpoints
 				.stream()
-				.filter(pair -> pair.getDestination().matches(destination))
+				.filter(e -> Destination.isFormal(e.getDestination(), actualDestination))
 				.findFirst());
 
-        if (!route.hasValue()) {
+        if (!endpoint.hasValue()) {
             return notFound.apply(HttpContext.empty());
         }
 
-        var unpackedRoute = route.getValue();
-
-        var regex = UriUtils.replaceFormalParametersWithRegex(unpackedRoute.getDestination().getUri());
-        var matcher = compile(regex).matcher(destination.getUri());
-
-		var pathParameters = new HashMap<String, String>();
-
-		if (matcher.find()) {
-			var namedGroups = matcher.namedGroups();
-			pathParameters = namedGroups.keySet()
-                    .stream()
-                    .map(key -> Pair.of(key, matcher.group(key)))
-                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getSecond()), Map::putAll);
-		}
-
-        return unpackedRoute.getRestFunction().apply(new HttpContext(pathParameters, Map.of(), headers, content));
+        var unpackedEndpoint = endpoint.getValue();
+        var pathParameters = getPathParameters(unpackedEndpoint.getDestination().getUri(), actualUri);
+        var httpContext = new HttpContext(pathParameters, getQueryParameters(actualUri), headers, content);
+        return unpackedEndpoint.getRestFunction().apply(httpContext);
     };
 
     public static final Function<
@@ -76,8 +65,8 @@ public final class Router {
             Integer,
             Try<Void>
         >
-    > listen = routes -> port -> {
-        var registeredProcess = process.apply(routes);
+    > listen = endpoints -> port -> {
+        var registeredProcess = process.apply(endpoints);
         System.out.println("Registered routes");
 
         try (ServerSocket server = new ServerSocket(port)) {
