@@ -56,7 +56,7 @@ public class UriTest {
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("John", result.get("name"));
+        assertEquals("John", result.get("name").getValue());
     }
 
     @Test
@@ -70,8 +70,8 @@ public class UriTest {
 
         // Assert
         assertEquals(2, result.size());
-        assertEquals("John", result.get("name"));
-        assertEquals("30", result.get("age"));
+        assertEquals("John", result.get("name").getValue());
+        assertEquals("30", result.get("age").getValue());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class UriTest {
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("John", result.get("name"));
+        assertEquals("John", result.get("name").getValue());
     }
 
     @Test
@@ -110,9 +110,9 @@ public class UriTest {
 
         // Assert
         assertEquals(3, result.size());
-        assertEquals("John", result.get("name"));
-        assertEquals("30", result.get("age"));
-        assertEquals("180", result.get("height"));
+        assertEquals("John", result.get("name").getValue());
+        assertEquals("30", result.get("age").getValue());
+        assertEquals("180", result.get("height").getValue());
     }
 
     @Test

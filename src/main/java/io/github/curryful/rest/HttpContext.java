@@ -1,17 +1,16 @@
 package io.github.curryful.rest;
 
-import java.util.Map;
-
 import io.github.curryful.commons.Maybe;
+import io.github.curryful.commons.MaybeHashMap;
 
 public final class HttpContext {
 
-	private final Map<String, String> pathParameters;
-	private final Map<String, String> queryParameters;
-    private final Map<String, String> headers;
+	private final MaybeHashMap<String, String> pathParameters;
+	private final MaybeHashMap<String, String> queryParameters;
+    private final MaybeHashMap<String, String> headers;
     private final Maybe<String> content;
 
-    public HttpContext(Map<String, String> pathParameters, Map<String, String> queryParameters, Map<String, String> headers, Maybe<String> content) {
+    public HttpContext(MaybeHashMap<String, String> pathParameters, MaybeHashMap<String, String> queryParameters, MaybeHashMap<String, String> headers, Maybe<String> content) {
 		this.pathParameters = pathParameters;
 		this.queryParameters = queryParameters;
         this.headers = headers;
@@ -19,18 +18,18 @@ public final class HttpContext {
     }
 
     public static final HttpContext empty() {
-        return new HttpContext(Map.of(), Map.of(), Map.of(), Maybe.none());
+        return new HttpContext(new MaybeHashMap<>(), new MaybeHashMap<>(), new MaybeHashMap<>(), Maybe.none());
     }
 
-	public Map<String, String> getPathParameters() {
+	public MaybeHashMap<String, String> getPathParameters() {
 		return pathParameters;
 	}
 
-	public Map<String, String> getQueryParameters() {
+	public MaybeHashMap<String, String> getQueryParameters() {
 		return queryParameters;
 	}
 
-    public Map<String, String> getHeaders() {
+    public MaybeHashMap<String, String> getHeaders() {
     	return headers;
     } 
 
@@ -38,3 +37,4 @@ public final class HttpContext {
         return content;
     }
 }
+

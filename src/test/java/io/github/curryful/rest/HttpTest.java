@@ -9,10 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import io.github.curryful.commons.MaybeHashMap;
 
 public class HttpTest {
 
@@ -52,7 +53,7 @@ public class HttpTest {
 	@Test
 	public void testGetHeadersPost() {
 		// Arrange
-		final var expected = new HashMap<String, String>();
+		final var expected = new MaybeHashMap<String, String>();
 		expected.put("Host", "localhost:8080");
 		expected.put("User-Agent", "curl/7.68.0");
 		expected.put("Accept", "*/*");
@@ -69,7 +70,7 @@ public class HttpTest {
 	@Test
 	public void testGetHeadersGet() {
 		// Arrange
-		final var expected = new HashMap<String, String>();
+		final var expected = new MaybeHashMap<String, String>();
 		expected.put("Host", "localhost:8080");
 		expected.put("User-Agent", "curl/7.68.0");
 		expected.put("Accept", "*/*");

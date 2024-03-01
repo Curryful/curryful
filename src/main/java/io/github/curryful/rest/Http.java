@@ -1,14 +1,14 @@
 package io.github.curryful.rest;
 
+import static io.github.curryful.rest.Pair.putPairIntoMaybeHashMap;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toUnmodifiableMap;
 
-import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import io.github.curryful.commons.Maybe;
+import io.github.curryful.commons.MaybeHashMap;
 
 public final class Http {
 
@@ -38,7 +38,7 @@ public final class Http {
      * Get the headers of an HTTP request.
      * Takes the request as a string and returns the headers as a map.
      */
-    public static final Function<Stream<String>, Map<String, String>> getHeaders = stream -> {
+    public static final Function<Stream<String>, MaybeHashMap<String, String>> getHeaders = stream -> {
         var regex = "(\\S+): (.*)";
         var pattern = Pattern.compile(regex);
 
@@ -58,7 +58,7 @@ public final class Http {
 				.map(headerAsPair)
 				.filter(Maybe::hasValue)
 				.map(Maybe::getValue)
-				.collect(toUnmodifiableMap(Pair::getFirst, Pair::getSecond));
+				.collect(MaybeHashMap::new, putPairIntoMaybeHashMap, MaybeHashMap::putAll);
     };
 
     /**

@@ -1,12 +1,14 @@
 package io.github.curryful.rest;
 
+import static io.github.curryful.commons.MaybeHashMap.empty;
+import static io.github.curryful.rest.Pair.putPairIntoMaybeHashMap;
 import static java.util.regex.Pattern.compile;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+
+import io.github.curryful.commons.MaybeHashMap;
 
 public final class Uri {
 
@@ -33,37 +35,35 @@ public final class Uri {
         return replaceFormalParametersWithRegex(replaced);
     }
 
-    public static Map<String, String> getPathParameters(String formalUri, String actualUri) {
+    public static MaybeHashMap<String, String> getPathParameters(String formalUri, String actualUri) {
         var matcher = compile(replaceFormalParametersWithRegex(formalUri)).matcher(actualUri);
 
 		if (!matcher.find()) {
-			return Map.of();
+			return empty();
 		}
-
-        BiConsumer<HashMap<String, String>, Pair<String, String>> putPair =
-                (map, pair) -> map.put(pair.getFirst(), pair.getSecond());
 
         var namedGroups = matcher.namedGroups();
         return namedGroups
                 .keySet()
                 .stream()
                 .map(key -> Pair.of(key, matcher.group(key)))
-                .collect(HashMap::new, putPair, Map::putAll);
+                .collect(MaybeHashMap::new, putPairIntoMaybeHashMap, MaybeHashMap::putAll);
     }
 
-    public static Map<String, String> getQueryParameters(String uri) {
+    public static MaybeHashMap<String, String> getQueryParameters(String uri) {
         var uriParts = uri.split("\\?");
 
         if (uriParts.length < 2) {
-            return Map.of();
+            return empty();
         }
 
-        BiConsumer<HashMap<String, String>, MatchResult> putMatchResult =
+        BiConsumer<MaybeHashMap<String, String>, MatchResult> putMatchResult =
                 (map, matchResult) -> map.put(matchResult.group(1), matchResult.group(2));
 
         return QUERY_PARAMETER_PATTERN
                 .matcher(uriParts[1])
                 .results()
-                .collect(HashMap::new, putMatchResult, HashMap::putAll);
+                .collect(MaybeHashMap::new, putMatchResult, MaybeHashMap::putAll);
     }
 }
+
