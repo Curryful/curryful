@@ -7,6 +7,7 @@ import static io.github.curryful.rest.Http.getPath;
 import static io.github.curryful.rest.Uri.getPathParameters;
 import static io.github.curryful.rest.Uri.getQueryParameters;
 
+import java.net.InetAddress;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -27,12 +28,15 @@ public final class Router {
 			Function<
 				List<PostMiddleware>,
 				Function<
-					List<String>,
-					HttpResponse<?>
+					InetAddress,
+					Function<
+						List<String>,
+						HttpResponse<?>
+					>
 				>
 			>
 		>	
-    > process = preMiddleware -> endpoints -> postMiddleware -> rawHttp -> {
+    > process = preMiddleware -> endpoints -> postMiddleware -> address -> rawHttp -> {
         var method = getMethod.apply(rawHttp.stream());
         var path = getPath.apply(rawHttp.stream());
         var httpMethod = method.flatMap(HttpMethod::fromString);
@@ -57,7 +61,7 @@ public final class Router {
         var unpackedEndpoint = endpoint.getValue();
 		var formalUri = unpackedEndpoint.getDestination().getUri();
 		var httpContext = HttpContext.of(httpMethod.getValue(), actualUri, formalUri,
-				getPathParameters(formalUri, actualUri), getQueryParameters(actualUri), headers, content);
+				getPathParameters(formalUri, actualUri), getQueryParameters(actualUri), headers, address, content);
 
 		var reducedPreMiddleware = preMiddleware.stream().reduce(PreMiddleware::andThen);
 		httpContext = Maybe.from(reducedPreMiddleware).orElse(PreMiddleware.empty).apply(httpContext);

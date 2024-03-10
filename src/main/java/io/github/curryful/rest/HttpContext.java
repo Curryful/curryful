@@ -1,5 +1,7 @@
 package io.github.curryful.rest;
 
+import java.net.InetAddress;
+
 import io.github.curryful.commons.Maybe;
 import io.github.curryful.commons.MaybeHashMap;
 
@@ -11,6 +13,7 @@ public final class HttpContext {
 	private final MaybeHashMap<String, String> pathParameters;
 	private final MaybeHashMap<String, String> queryParameters;
     private final MaybeHashMap<String, String> headers;
+	private final InetAddress address;
     private final Maybe<String> content;
 
     private HttpContext(
@@ -20,6 +23,7 @@ public final class HttpContext {
 		MaybeHashMap<String, String> pathParameters,
 		MaybeHashMap<String, String> queryParameters,
 		MaybeHashMap<String, String> headers,
+		InetAddress address,
 		Maybe<String> content
 	) {
 		this.method = method;
@@ -28,6 +32,7 @@ public final class HttpContext {
 		this.pathParameters = pathParameters;
 		this.queryParameters = queryParameters;
         this.headers = headers;
+		this.address = address;
         this.content = content;
     }
 
@@ -38,13 +43,15 @@ public final class HttpContext {
 		MaybeHashMap<String, String> pathParameters,
 		MaybeHashMap<String, String> queryParameters, 
 		MaybeHashMap<String, String> headers,
+		InetAddress address,
 		Maybe<String> content
 	) {
-		return new HttpContext(method, actualUri, formalUri, pathParameters, queryParameters, headers, content);
+		return new HttpContext(method, actualUri, formalUri, pathParameters, queryParameters, headers, address, content);
 	}
 
     public static final HttpContext empty() {
-        return new HttpContext(HttpMethod.NONE, "", "", new MaybeHashMap<>(), new MaybeHashMap<>(), new MaybeHashMap<>(), Maybe.none());
+        return new HttpContext(HttpMethod.NONE, "", "", new MaybeHashMap<>(), new MaybeHashMap<>(),
+				new MaybeHashMap<>(), InetAddress.getLoopbackAddress(), Maybe.none());
     }
 
 	public HttpMethod getMethod() {
@@ -70,6 +77,10 @@ public final class HttpContext {
     public MaybeHashMap<String, String> getHeaders() {
     	return headers;
     } 
+
+	public InetAddress getAddress() {
+	    return address;
+	}
 
     public Maybe<String> getContent() {
         return content;

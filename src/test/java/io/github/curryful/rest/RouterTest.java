@@ -1,7 +1,9 @@
 package io.github.curryful.rest;
 
+import static io.github.curryful.rest.Router.process;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -18,15 +20,42 @@ public class RouterTest {
 		var preMiddleware = new ArrayList<PreMiddleware>();
 		var endpoints = new ArrayList<Endpoint>();
 		var postMiddleware = new ArrayList<PostMiddleware>();
-		var rawHttp = Arrays.asList("GET / HTTP/1.1", "Host: localhost:8080",
-				"User-Agent: curl/7.68.0", "Accept: */*");
+		var rawHttp = Arrays.asList("GET / HTTP/1.1");
 
 		// Act
-		HttpResponse<?> result = Router.process.apply(preMiddleware).apply(endpoints)
-				.apply(postMiddleware).apply(rawHttp);
+		HttpResponse<?> response = process.apply(preMiddleware).apply(endpoints)
+				.apply(postMiddleware).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
 
 		// Assert
-		assertEquals(HttpResponseCode.NOT_FOUND, result.getCode());
+		assertEquals(HttpResponseCode.NOT_FOUND, response.getCode());
+	}
+
+	public void testProcessMiddleware() {
+		// Arrange
+		var preMiddleware = new ArrayList<PreMiddleware>();
+		preMiddleware.add(context -> {
+			context.getHeaders().put("User-Agent", "Test");
+			return context;
+		});
+
+		var endpoints = new ArrayList<Endpoint>();
+		endpoints.add(Endpoint.of(new Destination(HttpMethod.GET, "/"), context -> new HttpResponse<>(HttpResponseCode.OK)));
+
+		var postMiddleware = new ArrayList<PostMiddleware>();
+		postMiddleware.add((context, response) -> {
+			var newResponse = new HttpResponse<String>(response.getCode(),
+					context.getHeaders().get("User-Agent").orElse("Unknown"));
+			return newResponse;
+		});
+
+		var rawHttp = Arrays.asList("GET / HTTP/1.1");
+
+		// Act
+		HttpResponse<?> response = process.apply(preMiddleware).apply(endpoints)
+				.apply(postMiddleware).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
+
+		// Assert
+		assertEquals("Test", response.getBody().getValue());
 	}
 }
 
