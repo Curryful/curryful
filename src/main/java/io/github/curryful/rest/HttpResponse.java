@@ -7,15 +7,23 @@ public final class HttpResponse<T> {
     private final HttpResponseCode code;
     private final Maybe<T> body;
 
-    public HttpResponse(HttpResponseCode code) {
+    private HttpResponse(HttpResponseCode code) {
         this.code = code;
         this.body = Maybe.none();
     }
 
-    public HttpResponse(HttpResponseCode code, T body) {
+    private HttpResponse(HttpResponseCode code, T body) {
         this.code = code;
         this.body = Maybe.just(body);
     }
+
+	public static <T> HttpResponse<T> of(HttpResponseCode code) {
+		return new HttpResponse<>(code);
+	}
+
+	public static <T> HttpResponse<T> of(HttpResponseCode code, T body) {
+		return new HttpResponse<>(code, body);
+	}
 
     public HttpResponseCode getCode() {
         return code;

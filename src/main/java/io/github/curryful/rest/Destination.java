@@ -7,10 +7,14 @@ public final class Destination {
     private final HttpMethod method;
     private final String uri;
 
-    public Destination(HttpMethod method, String uri) {
+    private Destination(HttpMethod method, String uri) {
         this.method = method;
         this.uri = uri;
     }
+
+	public static Destination of(HttpMethod method, String uri) {
+		return new Destination(method, uri);
+	}
 
     /**
      * Check if a destination is the formal of another destination
@@ -41,3 +45,4 @@ public final class Destination {
         return uri;
     }
 }
+

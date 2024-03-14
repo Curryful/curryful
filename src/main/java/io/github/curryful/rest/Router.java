@@ -18,8 +18,7 @@ import io.github.curryful.rest.middleware.PreMiddleware;
 
 public final class Router {
 
-    private static final RestFunction notFound = _context ->
-			new HttpResponse<>(HttpResponseCode.NOT_FOUND);
+    private static final RestFunction notFound = _context -> HttpResponse.of(HttpResponseCode.NOT_FOUND);
 
 	public static final Function<
 		List<PreMiddleware>,
@@ -42,14 +41,14 @@ public final class Router {
         var httpMethod = method.flatMap(HttpMethod::fromString);
 
         if (!httpMethod.hasValue() || !path.hasValue()) {
-            return new HttpResponse<>(HttpResponseCode.BAD_REQUEST);
+            return HttpResponse.of(HttpResponseCode.BAD_REQUEST);
         }
 
         var headers = getHeaders.apply(rawHttp.stream());
         var content = getContent.apply(rawHttp.stream());
 
         var actualUri = path.getValue();
-		var actualDestination = new Destination(httpMethod.getValue(), actualUri);
+		var actualDestination = Destination.of(httpMethod.getValue(), actualUri);
 
 		Predicate<Endpoint> formalPredicate = e -> Destination.isFormal(e.getDestination(), actualDestination);
         var endpoint = Maybe.from(endpoints.stream().filter(formalPredicate).findFirst());
