@@ -39,11 +39,11 @@ public class RouterTest {
 		});
 
 		var endpoints = new ArrayList<Endpoint>();
-		endpoints.add(Endpoint.of(new Destination(HttpMethod.GET, "/"), context -> new HttpResponse<>(HttpResponseCode.OK)));
+		endpoints.add(Endpoint.of(Destination.of(HttpMethod.GET, "/"), context -> HttpResponse.of(HttpResponseCode.OK)));
 
 		var postMiddleware = new ArrayList<PostMiddleware>();
 		postMiddleware.add((context, response) -> {
-			var newResponse = new HttpResponse<String>(response.getCode(),
+			var newResponse = HttpResponse.of(response.getCode(),
 					context.getHeaders().get("User-Agent").orElse("Unknown"));
 			return newResponse;
 		});

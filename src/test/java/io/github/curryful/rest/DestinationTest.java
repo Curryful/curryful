@@ -10,8 +10,8 @@ public class DestinationTest {
     @Test
     public void testIsFormalTrue() {
         // Arrange
-        var formal = new Destination(HttpMethod.GET, "/hello/:name");
-        var actual = new Destination(HttpMethod.GET, "/hello/John");
+        var formal = Destination.of(HttpMethod.GET, "/hello/:name");
+        var actual = Destination.of(HttpMethod.GET, "/hello/John");
 
         // Act
         var result = Destination.isFormal(formal, actual);
@@ -23,8 +23,8 @@ public class DestinationTest {
     @Test
     public void testIsFormalTrueWithQuery() {
         // Arrange
-        var formal = new Destination(HttpMethod.GET, "/hello/:name");
-        var actual = new Destination(HttpMethod.GET, "/hello/John?lang=en");
+        var formal = Destination.of(HttpMethod.GET, "/hello/:name");
+        var actual = Destination.of(HttpMethod.GET, "/hello/John?lang=en");
 
         // Act
         var result = Destination.isFormal(formal, actual);
@@ -36,8 +36,8 @@ public class DestinationTest {
     @Test
     public void testIsFormalFalse() {
         // Arrange
-        var formal = new Destination(HttpMethod.GET, "/hello/:name");
-        var actual = new Destination(HttpMethod.GET, "/hello");
+        var formal = Destination.of(HttpMethod.GET, "/hello/:name");
+        var actual = Destination.of(HttpMethod.GET, "/hello");
 
         // Act
         var result = Destination.isFormal(formal, actual);
