@@ -1,6 +1,6 @@
 package io.github.curryful.rest;
 
-import io.github.curryful.commons.Maybe;
+import io.github.curryful.commons.monads.Maybe;
 
 /**
  * An HTTP response.

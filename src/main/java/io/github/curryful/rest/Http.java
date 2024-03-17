@@ -7,9 +7,9 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import io.github.curryful.commons.Maybe;
 import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
+import io.github.curryful.commons.monads.Maybe;
 
 /**
  * A class for HTTP utilities.

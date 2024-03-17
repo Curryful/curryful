@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import io.github.curryful.commons.Maybe;
-import io.github.curryful.commons.Try;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
+import io.github.curryful.commons.monads.Maybe;
+import io.github.curryful.commons.monads.Try;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 

@@ -2,8 +2,8 @@ package io.github.curryful.rest;
 
 import java.net.InetAddress;
 
-import io.github.curryful.commons.Maybe;
 import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
+import io.github.curryful.commons.monads.Maybe;
 
 /**
  * Represents the context of an HTTP request.

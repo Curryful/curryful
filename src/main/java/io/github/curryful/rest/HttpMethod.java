@@ -2,7 +2,7 @@ package io.github.curryful.rest;
 
 import java.util.Map;
 
-import io.github.curryful.commons.Maybe;
+import io.github.curryful.commons.monads.Maybe;
 
 public enum HttpMethod {
 
