@@ -2,6 +2,9 @@ package io.github.curryful.rest;
 
 import io.github.curryful.commons.Maybe;
 
+/**
+ * An HTTP response.
+ */
 public final class HttpResponse<T> {
 
     private final HttpResponseCode code;
@@ -33,3 +36,4 @@ public final class HttpResponse<T> {
         return body;
     }
 }
+

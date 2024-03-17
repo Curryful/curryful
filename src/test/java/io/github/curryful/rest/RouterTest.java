@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 
@@ -34,8 +35,11 @@ public class RouterTest {
 		// Arrange
 		var preMiddleware = new ArrayList<PreMiddleware>();
 		preMiddleware.add(context -> {
-			context.getHeaders().put("User-Agent", "Test");
-			return context;
+			var headers = MutableMaybeHashMap.of(context.getHeaders());
+			headers.put("User-Agent", "Test");
+			return HttpContext.of(context.getMethod(), context.getActualUri(), context.getFormalUri(),
+					context.getPathParameters(), context.getQueryParameters(), headers,
+					context.getAddress(), context.getContent());
 		});
 
 		var endpoints = new ArrayList<Endpoint>();

@@ -1,5 +1,8 @@
 package io.github.curryful.rest;
 
+/**
+ * An endpoint is a combination of a {@link Destination} and a {@link RestFunction}.
+ */
 public final class Endpoint {
 
     private final Destination destination;

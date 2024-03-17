@@ -1,6 +1,6 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Pair.putPairIntoMaybeHashMap;
+import static io.github.curryful.rest.Pair.putPairIntoMMHashMap;
 import static java.util.stream.Collectors.joining;
 
 import java.util.function.Function;
@@ -8,8 +8,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import io.github.curryful.commons.Maybe;
-import io.github.curryful.commons.MaybeHashMap;
+import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
+import io.github.curryful.commons.collections.MutableMaybeHashMap;
 
+/**
+ * A class for HTTP utilities.
+ */
 public final class Http {
 
     /**
@@ -26,10 +30,20 @@ public final class Http {
         }
     };
 
+	/**
+	 * Get the method of an HTTP request.
+	 * Takes the request as a string and returns the method as a string,
+	 * wrapped in a {@link Maybe}.
+	 */
     public static final Function<Stream<String>, Maybe<String>> getMethod = stream -> {
         return Maybe.from(stream.findFirst()).flatMap(getSingleGroupMatch.apply("(\\S+)"));
     };
 
+	/**
+	 * Get the path of an HTTP request.
+	 * Takes the request as a string and returns the path as a string,
+	 * wrapped in a {@link Maybe}.
+	 */
     public static final Function<Stream<String>, Maybe<String>> getPath = stream -> {
         return Maybe.from(stream.findFirst()).flatMap(getSingleGroupMatch.apply("\\S+ (\\S+)"));
     };
@@ -38,7 +52,7 @@ public final class Http {
      * Get the headers of an HTTP request.
      * Takes the request as a string and returns the headers as a map.
      */
-    public static final Function<Stream<String>, MaybeHashMap<String, String>> getHeaders = stream -> {
+    public static final Function<Stream<String>, ImmutableMaybeHashMap<String, String>> getHeaders = stream -> {
         var regex = "(\\S+): (.*)";
         var pattern = Pattern.compile(regex);
 
@@ -58,14 +72,15 @@ public final class Http {
 				.map(headerAsPair)
 				.filter(Maybe::hasValue)
 				.map(Maybe::getValue)
-				.collect(MaybeHashMap::new, putPairIntoMaybeHashMap, MaybeHashMap::putAll);
+				.collect(MutableMaybeHashMap::empty, putPairIntoMMHashMap, MutableMaybeHashMap::putAll);
     };
 
     /**
-     * Get the content of an HTTP request.
-     * Takes the request as a string and returns the content as a string.
+     * Get the body of an HTTP request.
+     * Takes the request as a string and returns the content as a string,
+	 * wrapped in a {@link Maybe}.
      */
-    public static final Function<Stream<String>, Maybe<String>> getContent = stream -> {
+    public static final Function<Stream<String>, Maybe<String>> getBody = stream -> {
         var content = stream.dropWhile(l -> !l.isEmpty()).skip(1).collect(joining("\n"));
 
         if (content.isEmpty()) {
@@ -75,7 +90,11 @@ public final class Http {
         }
     };
 
-    public static final Function<HttpResponse<?>, String> buildResponse = httpResponse -> {
+	/**
+	 * Serialize an {@link HttpResponse}.
+	 * Takes an {@link HttpResponse} and returns a string.
+	 */
+    public static final Function<HttpResponse<?>, String> serializeResponse = httpResponse -> {
         var sb = new StringBuilder(String.format("HTTP/1.1 %d %s\r\n", httpResponse.getCode().getCode(), httpResponse.getCode().getText()));
 
         if (httpResponse.getBody().hasValue()) {

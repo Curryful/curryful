@@ -1,6 +1,6 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Http.getContent;
+import static io.github.curryful.rest.Http.getBody;
 import static io.github.curryful.rest.Http.getHeaders;
 import static io.github.curryful.rest.Http.getMethod;
 import static io.github.curryful.rest.Http.getPath;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.curryful.commons.MaybeHashMap;
+import io.github.curryful.commons.collections.MutableMaybeHashMap;
 
 public class HttpTest {
 
@@ -53,7 +53,7 @@ public class HttpTest {
 	@Test
 	public void testGetHeadersPost() {
 		// Arrange
-		final var expected = new MaybeHashMap<String, String>();
+		var expected = MutableMaybeHashMap.empty();
 		expected.put("Host", "localhost:8080");
 		expected.put("User-Agent", "curl/7.68.0");
 		expected.put("Accept", "*/*");
@@ -70,7 +70,7 @@ public class HttpTest {
 	@Test
 	public void testGetHeadersGet() {
 		// Arrange
-		final var expected = new MaybeHashMap<String, String>();
+		var expected = MutableMaybeHashMap.empty();
 		expected.put("Host", "localhost:8080");
 		expected.put("User-Agent", "curl/7.68.0");
 		expected.put("Accept", "*/*");
@@ -83,9 +83,9 @@ public class HttpTest {
 	}
 
 	@Test
-	public void testGetContentPost() {
+	public void testGetBodyPost() {
 		// Act
-		var result = getContent.apply(rawHttpPost.stream());
+		var result = getBody.apply(rawHttpPost.stream());
 
 		// Assert
 		assertTrue(result.hasValue());
@@ -93,9 +93,9 @@ public class HttpTest {
 	}
 
 	@Test
-	public void testGetContentGet() {
+	public void testGetBodyGet() {
 		// Act / Assert
-		assertFalse(getContent.apply(rawHttpGet.stream()).hasValue());
+		assertFalse(getBody.apply(rawHttpGet.stream()).hasValue());
 	}
 }
 

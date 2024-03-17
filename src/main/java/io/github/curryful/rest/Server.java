@@ -1,7 +1,8 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Http.buildResponse;
+import static io.github.curryful.rest.Http.serializeResponse;
 import static io.github.curryful.rest.Router.process;
+import static io.github.curryful.commons.combinators.YCombinator.Y;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,23 +13,38 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
+import io.github.curryful.commons.Maybe;
 import io.github.curryful.commons.Try;
+import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 
-public class Server {
+/**
+ * Class to hold functions for serving the {@link Endpoint}s etc.
+ */
+public final class Server {
 
+	/**
+	 * Pre-middleware that logs the request.
+	 */
 	private static final PreMiddleware logRequest = context -> {
-		context.getHeaders().put("Curryful-Received-Request", Long.toString(Instant.now().toEpochMilli()));
+		var headers = MutableMaybeHashMap.of(context.getHeaders());
+		headers.put("Curryful-Received-Request", Long.toString(Instant.now().toEpochMilli()));
 		var userAgent = context.getHeaders().get("User-Agent").orElse("Unknown");
 
 		String log = String.format("%s %s %s - %s %s", LocalDateTime.now(), context.getMethod().name(),
 				context.getFormalUri(), context.getAddress(), userAgent);
 		System.out.println(log);
-		return context;
+		return HttpContext.of(context.getMethod(), context.getActualUri(), context.getFormalUri(),
+				context.getPathParameters(), context.getQueryParameters(), headers, context.getAddress(),
+				context.getContent());
 	};
 
+	/**
+	 * Post-middleware that logs the response and the time it took to process the request.
+	 */
 	private static final PostMiddleware logResponse = (context, response) -> {
 		var timeDelta = Instant.now().toEpochMilli() - context.getHeaders().get("Curryful-Received-Request")
 				.map(Long::parseLong).orElse(0L);
@@ -41,6 +57,39 @@ public class Server {
 		return response;
 	};
 
+	private static final Function<String, UnaryOperator<List<String>>> copyAndAdd = line -> lines -> {
+		var newLines = new ArrayList<String>(lines);
+		newLines.add(line);
+		return newLines;
+	};
+
+	private static final Function<
+		BufferedReader,
+		Function<
+			Function<List<String>, Try<List<String>>>,
+			Function<List<String>, Try<List<String>>>
+		>
+	> readHttpFromBuffer = bufferedReader -> function -> http -> {
+		try {
+			var line = Maybe.ofNullable(bufferedReader.readLine());
+
+			if (!line.hasValue() || line.getValue().isEmpty()) {
+				return Try.success(http);
+			}
+
+			var curriedCopyAndAdd = copyAndAdd.apply(line.getValue());
+			return Try.success(http).map(curriedCopyAndAdd).flatMap(function);
+		} catch (IOException e) {
+			return Try.failure(e);
+		}
+	};
+
+	/**
+	 * Listens for HTTP requests on the given port.
+	 * Passes pre-middleware, endpoints and post-middleware to {@link Router#process}
+	 * to register and then listens for requests.
+	 * Will never finish unless an exception is thrown.
+	 */
     public static final Function<
 		List<PreMiddleware>,
 		Function<
@@ -49,13 +98,12 @@ public class Server {
 				List<PostMiddleware>,
 				Function<
 					Integer,
-					Try<Void>
+					Try<?>
 				>
 			>
 		>
     > listen = preMiddleware -> endpoints -> postMiddleware -> port -> {
 		var preMiddlewareWithLogging = new ArrayList<PreMiddleware>(preMiddleware);
-
 		preMiddlewareWithLogging.addFirst(logRequest);
 
 		var postMiddlewareWithLogging = new ArrayList<PostMiddleware>(postMiddleware);
@@ -67,19 +115,16 @@ public class Server {
             while (true) {
                 var socket = server.accept();
 				var attachedProcess = registeredProcess.apply(socket.getInetAddress());
+				var readHttp = readHttpFromBuffer.apply(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+				var httpTry = Y(readHttp).apply(new ArrayList<String>());
+				var responseTry = httpTry.map(attachedProcess).map(serializeResponse);
 
-                // Would be a lot nicer but this line does not finish
-                // var rawHttp = new BufferedReader(new InputStreamReader(socket.getInputStream())).lines().toList();
-                var rawHttp = new ArrayList<String>();
-                var bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String line;
-                while ((line = bufferedReader.readLine()) != null && !line.isEmpty()) {
-                    rawHttp.add(line);
-                }
+				if (responseTry.isFailure()) {
+					return responseTry;
+				}
 
-                var response = attachedProcess.andThen(buildResponse).apply(rawHttp);
                 var out = socket.getOutputStream();
-                out.write(response.getBytes());
+                out.write(responseTry.getValue().getBytes());
                 out.flush();
                 socket.close();
             }

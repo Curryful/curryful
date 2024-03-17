@@ -1,5 +1,8 @@
 package io.github.curryful.rest;
 
+/**
+ * Represents an HTTP response code.
+ */
 public enum HttpResponseCode {
 
     OK(200, "OK"),

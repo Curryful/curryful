@@ -1,14 +1,14 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.commons.MaybeHashMap.empty;
-import static io.github.curryful.rest.Pair.putPairIntoMaybeHashMap;
+import static io.github.curryful.rest.Pair.putPairIntoMMHashMap;
 import static java.util.regex.Pattern.compile;
 
 import java.util.function.BiConsumer;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
-import io.github.curryful.commons.MaybeHashMap;
+import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
+import io.github.curryful.commons.collections.MutableMaybeHashMap;
 
 public final class Uri {
 
@@ -35,11 +35,11 @@ public final class Uri {
         return replaceFormalParametersWithRegex(replaced);
     }
 
-    public static MaybeHashMap<String, String> getPathParameters(String formalUri, String actualUri) {
+    public static ImmutableMaybeHashMap<String, String> getPathParameters(String formalUri, String actualUri) {
         var matcher = compile(replaceFormalParametersWithRegex(formalUri)).matcher(actualUri);
 
 		if (!matcher.find()) {
-			return empty();
+			return ImmutableMaybeHashMap.empty();
 		}
 
         var namedGroups = matcher.namedGroups();
@@ -47,23 +47,23 @@ public final class Uri {
                 .keySet()
                 .stream()
                 .map(key -> Pair.of(key, matcher.group(key)))
-                .collect(MaybeHashMap::new, putPairIntoMaybeHashMap, MaybeHashMap::putAll);
+                .collect(MutableMaybeHashMap::empty, putPairIntoMMHashMap, MutableMaybeHashMap::putAll);
     }
 
-    public static MaybeHashMap<String, String> getQueryParameters(String uri) {
+    public static ImmutableMaybeHashMap<String, String> getQueryParameters(String uri) {
         var uriParts = uri.split("\\?");
 
         if (uriParts.length < 2) {
-            return empty();
+            return ImmutableMaybeHashMap.empty();
         }
 
-        BiConsumer<MaybeHashMap<String, String>, MatchResult> putMatchResult =
+        BiConsumer<MutableMaybeHashMap<String, String>, MatchResult> putMatchResult =
                 (map, matchResult) -> map.put(matchResult.group(1), matchResult.group(2));
 
         return QUERY_PARAMETER_PATTERN
                 .matcher(uriParts[1])
                 .results()
-                .collect(MaybeHashMap::new, putMatchResult, MaybeHashMap::putAll);
+                .collect(MutableMaybeHashMap::empty, putMatchResult, MutableMaybeHashMap::putAll);
     }
 }
 

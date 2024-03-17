@@ -1,6 +1,6 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Http.getContent;
+import static io.github.curryful.rest.Http.getBody;
 import static io.github.curryful.rest.Http.getHeaders;
 import static io.github.curryful.rest.Http.getMethod;
 import static io.github.curryful.rest.Http.getPath;
@@ -16,10 +16,22 @@ import io.github.curryful.commons.Maybe;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 
+/**
+ * Class to hold functions for routing.
+ */
 public final class Router {
 
+	/**
+	 * {@link RestFunction} that returns a 404 response.
+	 */
     private static final RestFunction notFound = _context -> HttpResponse.of(HttpResponseCode.NOT_FOUND);
 
+	/**
+	 * Processes an HTTP request.
+	 * Creates an {@link HttpContext} from the raw HTTP, applies pre-middleware,
+	 * finds the matching endpoint, applies the endpoint's rest function and applies post-middleware.
+	 * Returns an {@link HttpResponse}.
+	 */
 	public static final Function<
 		List<PreMiddleware>,
 		Function<
@@ -45,7 +57,7 @@ public final class Router {
         }
 
         var headers = getHeaders.apply(rawHttp.stream());
-        var content = getContent.apply(rawHttp.stream());
+        var body = getBody.apply(rawHttp.stream());
 
         var actualUri = path.getValue();
 		var actualDestination = Destination.of(httpMethod.getValue(), actualUri);
@@ -60,7 +72,7 @@ public final class Router {
         var unpackedEndpoint = endpoint.getValue();
 		var formalUri = unpackedEndpoint.getDestination().getUri();
 		var httpContext = HttpContext.of(httpMethod.getValue(), actualUri, formalUri,
-				getPathParameters(formalUri, actualUri), getQueryParameters(actualUri), headers, address, content);
+				getPathParameters(formalUri, actualUri), getQueryParameters(actualUri), headers, address, body);
 
 		var reducedPreMiddleware = preMiddleware.stream().reduce(PreMiddleware::andThen);
 		httpContext = Maybe.from(reducedPreMiddleware).orElse(PreMiddleware.empty).apply(httpContext);

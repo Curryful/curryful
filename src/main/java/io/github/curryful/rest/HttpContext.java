@@ -3,16 +3,19 @@ package io.github.curryful.rest;
 import java.net.InetAddress;
 
 import io.github.curryful.commons.Maybe;
-import io.github.curryful.commons.MaybeHashMap;
+import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
 
+/**
+ * Represents the context of an HTTP request.
+ */
 public final class HttpContext {
 
 	private final HttpMethod method;
 	private final String actualUri;
 	private final String formalUri;
-	private final MaybeHashMap<String, String> pathParameters;
-	private final MaybeHashMap<String, String> queryParameters;
-    private final MaybeHashMap<String, String> headers;
+	private final ImmutableMaybeHashMap<String, String> pathParameters;
+	private final ImmutableMaybeHashMap<String, String> queryParameters;
+    private final ImmutableMaybeHashMap<String, String> headers;
 	private final InetAddress address;
     private final Maybe<String> content;
 
@@ -20,9 +23,9 @@ public final class HttpContext {
 		HttpMethod method,
 		String actualUri,
 		String formalUri,
-		MaybeHashMap<String, String> pathParameters,
-		MaybeHashMap<String, String> queryParameters,
-		MaybeHashMap<String, String> headers,
+		ImmutableMaybeHashMap<String, String> pathParameters,
+		ImmutableMaybeHashMap<String, String> queryParameters,
+		ImmutableMaybeHashMap<String, String> headers,
 		InetAddress address,
 		Maybe<String> content
 	) {
@@ -40,9 +43,9 @@ public final class HttpContext {
 		HttpMethod method,
 		String actualUri,
 		String formalUri,
-		MaybeHashMap<String, String> pathParameters,
-		MaybeHashMap<String, String> queryParameters, 
-		MaybeHashMap<String, String> headers,
+		ImmutableMaybeHashMap<String, String> pathParameters,
+		ImmutableMaybeHashMap<String, String> queryParameters, 
+		ImmutableMaybeHashMap<String, String> headers,
 		InetAddress address,
 		Maybe<String> content
 	) {
@@ -50,8 +53,8 @@ public final class HttpContext {
 	}
 
     public static final HttpContext empty() {
-        return new HttpContext(HttpMethod.NONE, "", "", new MaybeHashMap<>(), new MaybeHashMap<>(),
-				new MaybeHashMap<>(), InetAddress.getLoopbackAddress(), Maybe.none());
+        return new HttpContext(HttpMethod.NONE, "", "", ImmutableMaybeHashMap.empty(), ImmutableMaybeHashMap.empty(),
+				ImmutableMaybeHashMap.empty(), InetAddress.getLoopbackAddress(), Maybe.none());
     }
 
 	public HttpMethod getMethod() {
@@ -66,15 +69,15 @@ public final class HttpContext {
 	    return formalUri;
 	}
 
-	public MaybeHashMap<String, String> getPathParameters() {
+	public ImmutableMaybeHashMap<String, String> getPathParameters() {
 		return pathParameters;
 	}
 
-	public MaybeHashMap<String, String> getQueryParameters() {
+	public ImmutableMaybeHashMap<String, String> getQueryParameters() {
 		return queryParameters;
 	}
 
-    public MaybeHashMap<String, String> getHeaders() {
+    public ImmutableMaybeHashMap<String, String> getHeaders() {
     	return headers;
     } 
 
