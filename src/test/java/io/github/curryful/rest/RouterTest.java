@@ -39,7 +39,7 @@ public class RouterTest {
 			headers.put("User-Agent", "Test");
 			return HttpContext.of(context.getMethod(), context.getActualUri(), context.getFormalUri(),
 					context.getPathParameters(), context.getQueryParameters(), headers,
-					context.getAddress(), context.getContent());
+					context.getAddress(), context.getBody());
 		});
 
 		var endpoints = new ArrayList<Endpoint>();

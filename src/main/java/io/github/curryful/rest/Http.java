@@ -77,16 +77,16 @@ public final class Http {
 
     /**
      * Get the body of an HTTP request.
-     * Takes the request as a string and returns the content as a string,
+     * Takes the request as a string and returns the body as a string,
 	 * wrapped in a {@link Maybe}.
      */
     public static final Function<Stream<String>, Maybe<String>> getBody = stream -> {
-        var content = stream.dropWhile(l -> !l.isEmpty()).skip(1).collect(joining("\n"));
+        var body = stream.dropWhile(l -> !l.isEmpty()).skip(1).collect(joining("\n"));
 
-        if (content.isEmpty()) {
+        if (body.isEmpty()) {
             return Maybe.none();
         } else {
-            return Maybe.just(content);
+            return Maybe.just(body);
         }
     };
 

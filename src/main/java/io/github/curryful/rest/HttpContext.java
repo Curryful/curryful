@@ -17,7 +17,7 @@ public final class HttpContext {
 	private final ImmutableMaybeHashMap<String, String> queryParameters;
     private final ImmutableMaybeHashMap<String, String> headers;
 	private final InetAddress address;
-    private final Maybe<String> content;
+    private final Maybe<String> body;
 
     private HttpContext(
 		HttpMethod method,
@@ -27,7 +27,7 @@ public final class HttpContext {
 		ImmutableMaybeHashMap<String, String> queryParameters,
 		ImmutableMaybeHashMap<String, String> headers,
 		InetAddress address,
-		Maybe<String> content
+		Maybe<String> body
 	) {
 		this.method = method;
 		this.actualUri = actualUri;
@@ -36,7 +36,7 @@ public final class HttpContext {
 		this.queryParameters = queryParameters;
         this.headers = headers;
 		this.address = address;
-        this.content = content;
+        this.body = body;
     }
 
 	public static final HttpContext of(
@@ -47,9 +47,9 @@ public final class HttpContext {
 		ImmutableMaybeHashMap<String, String> queryParameters, 
 		ImmutableMaybeHashMap<String, String> headers,
 		InetAddress address,
-		Maybe<String> content
+		Maybe<String> body
 	) {
-		return new HttpContext(method, actualUri, formalUri, pathParameters, queryParameters, headers, address, content);
+		return new HttpContext(method, actualUri, formalUri, pathParameters, queryParameters, headers, address, body);
 	}
 
     public static final HttpContext empty() {
@@ -85,8 +85,8 @@ public final class HttpContext {
 	    return address;
 	}
 
-    public Maybe<String> getContent() {
-        return content;
+    public Maybe<String> getBody() {
+        return body;
     }
 }
 

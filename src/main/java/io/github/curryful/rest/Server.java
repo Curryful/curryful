@@ -39,7 +39,7 @@ public final class Server {
 		System.out.println(log);
 		return HttpContext.of(context.getMethod(), context.getActualUri(), context.getFormalUri(),
 				context.getPathParameters(), context.getQueryParameters(), headers, context.getAddress(),
-				context.getContent());
+				context.getBody());
 	};
 
 	/**
