@@ -1,4 +1,4 @@
-package io.github.curryful.rest;
+package io.github.curryful.rest.http;
 
 import static io.github.curryful.rest.Pair.putPairIntoMMHashMap;
 import static java.util.stream.Collectors.joining;
@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.commons.monads.Maybe;
+import io.github.curryful.rest.Pair;
 
 /**
  * A class for HTTP utilities.
@@ -94,12 +95,11 @@ public final class Http {
 	 * Serialize an {@link HttpResponse}.
 	 * Takes an {@link HttpResponse} and returns a string.
 	 */
-    public static final Function<HttpResponse<?>, String> serializeResponse = httpResponse -> {
+    public static final Function<HttpResponse, String> serializeResponse = httpResponse -> {
         var sb = new StringBuilder(String.format("HTTP/1.1 %d %s\r\n", httpResponse.getCode().getCode(), httpResponse.getCode().getText()));
 
         if (httpResponse.getBody().hasValue()) {
-            // TODO: Change to fit actual content type
-            sb.append("Content-Type: text/html\r\n");
+            sb.append(String.format("Content-Type: %s\r\n", httpResponse.getContentType().getValue()));
             sb.append("\r\n");
             sb.append(String.format("%s\r\n", httpResponse.getBody().getValue().toString()));
         }

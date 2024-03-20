@@ -1,4 +1,4 @@
-package io.github.curryful.rest;
+package io.github.curryful.rest.http;
 
 /**
  * Represents an HTTP response code.

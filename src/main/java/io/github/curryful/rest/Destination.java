@@ -2,6 +2,8 @@ package io.github.curryful.rest;
 
 import java.util.regex.Pattern;
 
+import io.github.curryful.rest.http.HttpMethod;
+
 /**
  * A destination is one of the parts describing an {@link Endpoint}.
  */

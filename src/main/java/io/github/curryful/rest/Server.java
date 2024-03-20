@@ -1,8 +1,8 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Http.serializeResponse;
-import static io.github.curryful.rest.Router.process;
 import static io.github.curryful.commons.combinators.YCombinator.Y;
+import static io.github.curryful.rest.Router.process;
+import static io.github.curryful.rest.http.Http.serializeResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.util.function.UnaryOperator;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.commons.monads.Maybe;
 import io.github.curryful.commons.monads.Try;
+import io.github.curryful.rest.http.HttpContext;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 

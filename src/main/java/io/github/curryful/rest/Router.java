@@ -1,11 +1,11 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Http.getBody;
-import static io.github.curryful.rest.Http.getHeaders;
-import static io.github.curryful.rest.Http.getMethod;
-import static io.github.curryful.rest.Http.getPath;
 import static io.github.curryful.rest.Uri.getPathParameters;
 import static io.github.curryful.rest.Uri.getQueryParameters;
+import static io.github.curryful.rest.http.Http.getBody;
+import static io.github.curryful.rest.http.Http.getHeaders;
+import static io.github.curryful.rest.http.Http.getMethod;
+import static io.github.curryful.rest.http.Http.getPath;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -13,6 +13,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.github.curryful.commons.monads.Maybe;
+import io.github.curryful.rest.http.HttpContext;
+import io.github.curryful.rest.http.HttpMethod;
+import io.github.curryful.rest.http.HttpResponse;
+import io.github.curryful.rest.http.HttpResponseCode;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 
@@ -42,7 +46,7 @@ public final class Router {
 					InetAddress,
 					Function<
 						List<String>,
-						HttpResponse<?>
+						HttpResponse
 					>
 				>
 			>

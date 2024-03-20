@@ -1,6 +1,6 @@
 package io.github.curryful.rest.middleware;
 
-import io.github.curryful.rest.HttpContext;
+import io.github.curryful.rest.http.HttpContext;
 
 /**
  * {@link FunctionalInterface} to register middleware to be executed before the

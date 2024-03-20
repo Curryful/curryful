@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.curryful.rest.http.HttpMethod;
+
 public class DestinationTest {
     
     @Test

@@ -10,6 +10,10 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
+import io.github.curryful.rest.http.HttpContext;
+import io.github.curryful.rest.http.HttpMethod;
+import io.github.curryful.rest.http.HttpResponse;
+import io.github.curryful.rest.http.HttpResponseCode;
 import io.github.curryful.rest.middleware.PostMiddleware;
 import io.github.curryful.rest.middleware.PreMiddleware;
 
@@ -24,7 +28,7 @@ public class RouterTest {
 		var rawHttp = Arrays.asList("GET / HTTP/1.1");
 
 		// Act
-		HttpResponse<?> response = process.apply(preMiddleware).apply(endpoints)
+		HttpResponse response = process.apply(preMiddleware).apply(endpoints)
 				.apply(postMiddleware).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
 
 		// Assert
@@ -48,14 +52,14 @@ public class RouterTest {
 		var postMiddleware = new ArrayList<PostMiddleware>();
 		postMiddleware.add((context, response) -> {
 			var newResponse = HttpResponse.of(response.getCode(),
-					context.getHeaders().get("User-Agent").orElse("Unknown"));
+					context.getHeaders().get("User-Agent").orElse("Unknown"), response.getContentType());
 			return newResponse;
 		});
 
 		var rawHttp = Arrays.asList("GET / HTTP/1.1");
 
 		// Act
-		HttpResponse<?> response = process.apply(preMiddleware).apply(endpoints)
+		HttpResponse response = process.apply(preMiddleware).apply(endpoints)
 				.apply(postMiddleware).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
 
 		// Assert

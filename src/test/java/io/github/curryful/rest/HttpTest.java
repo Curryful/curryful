@@ -1,9 +1,9 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Http.getBody;
-import static io.github.curryful.rest.Http.getHeaders;
-import static io.github.curryful.rest.Http.getMethod;
-import static io.github.curryful.rest.Http.getPath;
+import static io.github.curryful.rest.http.Http.getBody;
+import static io.github.curryful.rest.http.Http.getHeaders;
+import static io.github.curryful.rest.http.Http.getMethod;
+import static io.github.curryful.rest.http.Http.getPath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
