@@ -1,4 +1,4 @@
-package io.github.curryful.rest;
+package io.github.curryful.rest.http;
 
 import static io.github.curryful.rest.http.Http.getBody;
 import static io.github.curryful.rest.http.Http.getHeaders;

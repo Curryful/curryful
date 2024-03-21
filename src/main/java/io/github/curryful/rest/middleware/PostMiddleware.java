@@ -1,5 +1,7 @@
 package io.github.curryful.rest.middleware;
 
+import java.util.function.UnaryOperator;
+
 import io.github.curryful.rest.http.HttpContext;
 import io.github.curryful.rest.http.HttpResponse;
 
@@ -10,12 +12,12 @@ import io.github.curryful.rest.http.HttpResponse;
 @FunctionalInterface
 public interface PostMiddleware {
 
-	public static final PostMiddleware empty = (context, response) -> response;
+	public static final PostMiddleware none = context -> response -> response;
 
-	public HttpResponse apply(HttpContext context, HttpResponse response);
+	public UnaryOperator<HttpResponse> apply(HttpContext context);
 
 	default PostMiddleware andThen(PostMiddleware after) {
-        return (HttpContext context, HttpResponse reponse) -> after.apply(context, apply(context, reponse));
+        return (HttpContext context) -> (HttpResponse reponse) -> after.apply(context).apply(apply(context).apply(reponse));
     }
 }
 

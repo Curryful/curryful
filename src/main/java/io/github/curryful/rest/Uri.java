@@ -1,9 +1,11 @@
 package io.github.curryful.rest;
 
+import static io.github.curryful.commons.combinators.YCombinator.Y;
 import static io.github.curryful.rest.Pair.putPairIntoMMHashMap;
 import static java.util.regex.Pattern.compile;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
@@ -20,23 +22,34 @@ public final class Uri {
         // noop
     }
 
-    public static String replaceFormalParametersWithRegex(String uri) {
-        var matcher = PATH_PARAMETER_PATTERN.matcher(uri);
+	private static final Function<
+		Function<String, String>,
+		Function<String, String>
+	> replaceFormalParameterWithRegex = function -> uri -> {
+		var matcher = PATH_PARAMETER_PATTERN.matcher(uri);
 
-        if (!matcher.find()) {
-            return uri;
-        }
+		if (!matcher.find()) {
+			return uri;
+		}
 
-        var formalParameter = matcher.group(1);
-        var formalParameterName = matcher.group(2);
+		var formalParameter = matcher.group(1);
+		var formalParameterName = matcher.group(2);
 
-        var replaced = uri.replace(formalParameter,
-                String.format(PATH_PARAMETER_GROUP_PLACEHOLDER_REGEX, formalParameterName));
-        return replaceFormalParametersWithRegex(replaced);
-    }
+		var replaced = uri.replace(formalParameter,
+				String.format(PATH_PARAMETER_GROUP_PLACEHOLDER_REGEX, formalParameterName));
+		return function.apply(replaced);
+	};
 
-    public static ImmutableMaybeHashMap<String, String> getPathParameters(String formalUri, String actualUri) {
-        var matcher = compile(replaceFormalParametersWithRegex(formalUri)).matcher(actualUri);
+	public static final Function<String, String> replaceFormalParametersWithRegex = Y(replaceFormalParameterWithRegex);
+
+    public static final Function<
+		String,
+		Function<
+			String,
+			ImmutableMaybeHashMap<String, String>
+		>
+	>  getPathParameters = formalUri -> actualUri -> {
+        var matcher = compile(replaceFormalParametersWithRegex.apply(formalUri)).matcher(actualUri);
 
 		if (!matcher.find()) {
 			return ImmutableMaybeHashMap.empty();
@@ -48,9 +61,9 @@ public final class Uri {
                 .stream()
                 .map(key -> Pair.of(key, matcher.group(key)))
                 .collect(MutableMaybeHashMap::empty, putPairIntoMMHashMap, MutableMaybeHashMap::putAll);
-    }
+    };
 
-    public static ImmutableMaybeHashMap<String, String> getQueryParameters(String uri) {
+    public static final Function<String, ImmutableMaybeHashMap<String, String>> getQueryParameters = uri -> {
         var uriParts = uri.split("\\?");
 
         if (uriParts.length < 2) {
@@ -64,6 +77,6 @@ public final class Uri {
                 .matcher(uriParts[1])
                 .results()
                 .collect(MutableMaybeHashMap::empty, putMatchResult, MutableMaybeHashMap::putAll);
-    }
+    };
 }
 

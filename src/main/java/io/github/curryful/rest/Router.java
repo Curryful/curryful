@@ -76,15 +76,15 @@ public final class Router {
         var unpackedEndpoint = endpoint.getValue();
 		var formalUri = unpackedEndpoint.getDestination().getUri();
 		var httpContext = HttpContext.of(httpMethod.getValue(), actualUri, formalUri,
-				getPathParameters(formalUri, actualUri), getQueryParameters(actualUri), headers, address, body);
+				getPathParameters.apply(formalUri).apply(actualUri), getQueryParameters.apply(actualUri), headers, address, body);
 
 		var reducedPreMiddleware = preMiddleware.stream().reduce(PreMiddleware::andThen);
-		httpContext = Maybe.from(reducedPreMiddleware).orElse(PreMiddleware.empty).apply(httpContext);
+		httpContext = Maybe.from(reducedPreMiddleware).orElse(PreMiddleware.none).apply(httpContext);
         
 		var restFunctionResponse = unpackedEndpoint.getRestFunction().apply(httpContext);
 
 		var reducedPostMiddleware = postMiddleware.stream().reduce(PostMiddleware::andThen);
-		return Maybe.from(reducedPostMiddleware).orElse(PostMiddleware.empty).apply(httpContext, restFunctionResponse);
+		return Maybe.from(reducedPostMiddleware).orElse(PostMiddleware.none).apply(httpContext).apply(restFunctionResponse);
 	};
 }
 

@@ -9,7 +9,7 @@ import io.github.curryful.rest.http.HttpContext;
 @FunctionalInterface
 public interface PreMiddleware {
 
-	public static final PreMiddleware empty = context -> context;
+	public static final PreMiddleware none = context -> context;
 
 	public HttpContext apply(HttpContext context);
 

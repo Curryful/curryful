@@ -15,7 +15,7 @@ public class UriTest {
         var uri = "/hello/:name";
 
         // Act
-        var result = replaceFormalParametersWithRegex(uri);
+        var result = replaceFormalParametersWithRegex.apply(uri);
 
         // Assert
         assertEquals("/hello/(?<name>[^/?]+)", result);
@@ -27,7 +27,7 @@ public class UriTest {
         var uri = "/hello/:name/:age/:height";
 
         // Act
-        var result = replaceFormalParametersWithRegex(uri);
+        var result = replaceFormalParametersWithRegex.apply(uri);
 
         // Assert
         assertEquals("/hello/(?<name>[^/?]+)/(?<age>[^/?]+)/(?<height>[^/?]+)", result);
@@ -39,7 +39,7 @@ public class UriTest {
         var uri = "/hello";
 
         // Act
-        var result = replaceFormalParametersWithRegex(uri);
+        var result = replaceFormalParametersWithRegex.apply(uri);
 
         // Assert
         assertEquals("/hello", result);
@@ -52,7 +52,7 @@ public class UriTest {
         var actualUri = "/hello/John";
 
         // Act
-        var result = getPathParameters(formalUri, actualUri);
+        var result = getPathParameters.apply(formalUri).apply(actualUri);
 
         // Assert
         assertEquals(1, result.size());
@@ -66,7 +66,7 @@ public class UriTest {
         var actualUri = "/hello/John/30";
 
         // Act
-        var result = getPathParameters(formalUri, actualUri);
+        var result = getPathParameters.apply(formalUri).apply(actualUri);
 
         // Assert
         assertEquals(2, result.size());
@@ -81,7 +81,7 @@ public class UriTest {
         var actualUri = "/hello";
 
         // Act
-        var result = getPathParameters(formalUri, actualUri);
+        var result = getPathParameters.apply(formalUri).apply(actualUri);
 
         // Assert
         assertEquals(0, result.size());
@@ -93,7 +93,7 @@ public class UriTest {
         var uri = "/hello?name=John";
 
         // Act
-        var result = getQueryParameters(uri);
+        var result = getQueryParameters.apply(uri);
 
         // Assert
         assertEquals(1, result.size());
@@ -106,7 +106,7 @@ public class UriTest {
         var uri = "/hello?name=John&age=30&height=180";
 
         // Act
-        var result = getQueryParameters(uri);
+        var result = getQueryParameters.apply(uri);
 
         // Assert
         assertEquals(3, result.size());
@@ -121,7 +121,7 @@ public class UriTest {
         var uri = "/hello";
 
         // Act
-        var result = getQueryParameters(uri);
+        var result = getQueryParameters.apply(uri);
 
         // Assert
         assertEquals(0, result.size());

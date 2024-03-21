@@ -1,5 +1,7 @@
 package io.github.curryful.rest;
 
+import static io.github.curryful.rest.Uri.replaceFormalParametersWithRegex;
+
 import java.util.regex.Pattern;
 
 import io.github.curryful.rest.http.HttpMethod;
@@ -37,7 +39,7 @@ public final class Destination {
         var actualUriParts = actual.uri.split("\\?");
 
 		return formal.getMethod().equals(actual.method) &&
-                Pattern.compile(Uri.replaceFormalParametersWithRegex(formal.getUri()))
+                Pattern.compile(replaceFormalParametersWithRegex.apply(formal.getUri()))
                         .matcher(actualUriParts[0])
                         .matches();
 	}

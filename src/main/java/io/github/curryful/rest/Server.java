@@ -46,7 +46,7 @@ public final class Server {
 	/**
 	 * Post-middleware that logs the response and the time it took to process the request.
 	 */
-	private static final PostMiddleware logResponse = (context, response) -> {
+	private static final PostMiddleware logResponse = context -> response -> {
 		var timeDelta = Instant.now().toEpochMilli() - context.getHeaders().get("Curryful-Received-Request")
 				.map(Long::parseLong).orElse(0L);
 		var userAgent = context.getHeaders().get("User-Agent").orElse("Unknown");
@@ -58,12 +58,18 @@ public final class Server {
 		return response;
 	};
 
+	/**
+	 * Copies a list and adds a line to it.
+	 */
 	private static final Function<String, UnaryOperator<List<String>>> copyAndAdd = line -> lines -> {
 		var newLines = new ArrayList<String>(lines);
 		newLines.add(line);
 		return newLines;
 	};
 
+	/**
+	 * Reads HTTP from a buffer and applies a function to it.
+	 */
 	private static final Function<
 		BufferedReader,
 		Function<

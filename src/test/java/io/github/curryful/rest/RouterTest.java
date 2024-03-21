@@ -50,7 +50,7 @@ public class RouterTest {
 		endpoints.add(Endpoint.of(Destination.of(HttpMethod.GET, "/"), context -> HttpResponse.of(HttpResponseCode.OK)));
 
 		var postMiddleware = new ArrayList<PostMiddleware>();
-		postMiddleware.add((context, response) -> {
+		postMiddleware.add(context -> response -> {
 			var newResponse = HttpResponse.of(response.getCode(),
 					context.getHeaders().get("User-Agent").orElse("Unknown"), response.getContentType());
 			return newResponse;
