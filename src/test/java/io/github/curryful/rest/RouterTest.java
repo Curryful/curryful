@@ -4,11 +4,11 @@ import static io.github.curryful.rest.Router.process;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.curryful.commons.collections.ImmutableArrayList;
+import io.github.curryful.commons.collections.MutableArrayList;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.rest.http.HttpContext;
 import io.github.curryful.rest.http.HttpMethod;
@@ -22,14 +22,12 @@ public class RouterTest {
 	@Test
 	public void testProcessEndpointNotFound() {
 		// Arrange
-		var preMiddleware = new ArrayList<PreMiddleware>();
-		var endpoints = new ArrayList<Endpoint>();
-		var postMiddleware = new ArrayList<PostMiddleware>();
-		var rawHttp = Arrays.asList("GET / HTTP/1.1");
+		MutableArrayList<String> rawHttp = MutableArrayList.empty();
+		rawHttp.add("GET / HTTP/1.1");
 
 		// Act
-		HttpResponse response = process.apply(preMiddleware).apply(endpoints)
-				.apply(postMiddleware).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
+		HttpResponse response = process.apply(ImmutableArrayList.empty()).apply(ImmutableArrayList.empty())
+				.apply(ImmutableArrayList.empty()).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
 
 		// Assert
 		assertEquals(HttpResponseCode.NOT_FOUND, response.getCode());
@@ -37,7 +35,7 @@ public class RouterTest {
 
 	public void testProcessMiddleware() {
 		// Arrange
-		var preMiddleware = new ArrayList<PreMiddleware>();
+		MutableArrayList<PreMiddleware> preMiddleware = MutableArrayList.empty();
 		preMiddleware.add(context -> {
 			var headers = MutableMaybeHashMap.of(context.getHeaders());
 			headers.put("User-Agent", "Test");
@@ -46,17 +44,18 @@ public class RouterTest {
 					context.getAddress(), context.getBody());
 		});
 
-		var endpoints = new ArrayList<Endpoint>();
+		MutableArrayList<Endpoint> endpoints = MutableArrayList.empty();
 		endpoints.add(Endpoint.of(Destination.of(HttpMethod.GET, "/"), context -> HttpResponse.of(HttpResponseCode.OK)));
 
-		var postMiddleware = new ArrayList<PostMiddleware>();
+		MutableArrayList<PostMiddleware> postMiddleware = MutableArrayList.empty();
 		postMiddleware.add(context -> response -> {
 			var newResponse = HttpResponse.of(response.getCode(),
 					context.getHeaders().get("User-Agent").orElse("Unknown"), response.getContentType());
 			return newResponse;
 		});
 
-		var rawHttp = Arrays.asList("GET / HTTP/1.1");
+		MutableArrayList<String> rawHttp = MutableArrayList.empty();
+		rawHttp.add("GET / HTTP/1.1");
 
 		// Act
 		HttpResponse response = process.apply(preMiddleware).apply(endpoints)

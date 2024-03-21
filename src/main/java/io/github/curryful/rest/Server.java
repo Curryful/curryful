@@ -10,11 +10,11 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import io.github.curryful.commons.collections.ImmutableArrayList;
+import io.github.curryful.commons.collections.MutableArrayList;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.commons.monads.Maybe;
 import io.github.curryful.commons.monads.Try;
@@ -61,8 +61,8 @@ public final class Server {
 	/**
 	 * Copies a list and adds a line to it.
 	 */
-	private static final Function<String, UnaryOperator<List<String>>> copyAndAdd = line -> lines -> {
-		var newLines = new ArrayList<String>(lines);
+	private static final Function<String, UnaryOperator<ImmutableArrayList<String>>> copyAndAdd = line -> lines -> {
+		var newLines = MutableArrayList.of(lines);
 		newLines.add(line);
 		return newLines;
 	};
@@ -73,8 +73,8 @@ public final class Server {
 	private static final Function<
 		BufferedReader,
 		Function<
-			Function<List<String>, Try<List<String>>>,
-			Function<List<String>, Try<List<String>>>
+			Function<ImmutableArrayList<String>, Try<ImmutableArrayList<String>>>,
+			Function<ImmutableArrayList<String>, Try<ImmutableArrayList<String>>>
 		>
 	> readHttpFromBuffer = bufferedReader -> function -> http -> {
 		try {
@@ -98,11 +98,11 @@ public final class Server {
 	 * Will never finish unless an exception is thrown.
 	 */
     public static final Function<
-		List<PreMiddleware>,
+		ImmutableArrayList<PreMiddleware>,
 		Function<
-			List<Endpoint>,
+			ImmutableArrayList<Endpoint>,
 			Function<
-				List<PostMiddleware>,
+				ImmutableArrayList<PostMiddleware>,
 				Function<
 					Integer,
 					Try<?>
@@ -110,11 +110,11 @@ public final class Server {
 			>
 		>
     > listen = preMiddleware -> endpoints -> postMiddleware -> port -> {
-		var preMiddlewareWithLogging = new ArrayList<PreMiddleware>(preMiddleware);
+		var preMiddlewareWithLogging = MutableArrayList.of(preMiddleware);
 		preMiddlewareWithLogging.addFirst(logRequest);
 
-		var postMiddlewareWithLogging = new ArrayList<PostMiddleware>(postMiddleware);
-		postMiddlewareWithLogging.addLast(logResponse);
+		var postMiddlewareWithLogging = MutableArrayList.of(postMiddleware);
+		postMiddlewareWithLogging.add(logResponse);
 
         var registeredProcess = process.apply(preMiddlewareWithLogging).apply(endpoints).apply(postMiddlewareWithLogging);
 
@@ -123,7 +123,7 @@ public final class Server {
                 var socket = server.accept();
 				var attachedProcess = registeredProcess.apply(socket.getInetAddress());
 				var readHttp = readHttpFromBuffer.apply(new BufferedReader(new InputStreamReader(socket.getInputStream())));
-				var httpTry = Y(readHttp).apply(new ArrayList<String>());
+				var httpTry = Y(readHttp).apply(ImmutableArrayList.empty());
 				var responseTry = httpTry.map(attachedProcess).map(serializeResponse);
 
 				if (responseTry.isFailure()) {

@@ -8,10 +8,10 @@ import static io.github.curryful.rest.http.Http.getMethod;
 import static io.github.curryful.rest.http.Http.getPath;
 
 import java.net.InetAddress;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import io.github.curryful.commons.collections.ImmutableArrayList;
 import io.github.curryful.commons.monads.Maybe;
 import io.github.curryful.rest.http.HttpContext;
 import io.github.curryful.rest.http.HttpMethod;
@@ -37,15 +37,15 @@ public final class Router {
 	 * Returns an {@link HttpResponse}.
 	 */
 	public static final Function<
-		List<PreMiddleware>,
+		ImmutableArrayList<PreMiddleware>,
 		Function<
-			List<Endpoint>,
+			ImmutableArrayList<Endpoint>,
 			Function<
-				List<PostMiddleware>,
+				ImmutableArrayList<PostMiddleware>,
 				Function<
 					InetAddress,
 					Function<
-						List<String>,
+						ImmutableArrayList<String>,
 						HttpResponse
 					>
 				>
