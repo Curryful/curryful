@@ -78,11 +78,12 @@ public final class Server {
 		>
 	> readHttpFromBuffer = bufferedReader -> function -> http -> {
 		try {
-			if (!bufferedReader.ready()) {
+			var line = Maybe.ofNullable(bufferedReader.readLine());
+
+			if (!line.hasValue() || (line.getValue().isEmpty() && !bufferedReader.ready())) {
 				return Try.success(http);
 			}
 
-			var line = Maybe.ofNullable(bufferedReader.readLine());
 			var curriedCopyAndAdd = copyAndAdd.apply(line.getValue());
 			return Try.success(http).map(curriedCopyAndAdd).flatMap(function);
 		} catch (IOException e) {
