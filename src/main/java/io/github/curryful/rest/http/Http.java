@@ -95,17 +95,18 @@ public final class Http {
 	 * Serialize an {@link HttpResponse}.
 	 * Takes an {@link HttpResponse} and returns a string.
 	 */
-    public static final Function<HttpResponse, String> serializeResponse = httpResponse -> {
-        var sb = new StringBuilder(String.format("HTTP/1.1 %d %s\r\n", httpResponse.getCode().getCode(), httpResponse.getCode().getText()));
+	public static final Function<HttpResponse, String> serializeResponse = httpResponse -> {
+		var sb = new StringBuilder(String.format("HTTP/1.1 %d %s\r\n", httpResponse.getCode().getCode(), httpResponse.getCode().getText()));
+		httpResponse.getHeaders().stream().forEach(entry -> sb.append(String.format("%s: %s\r\n", entry.getKey(), entry.getValue())));
 
-        if (httpResponse.getBody().hasValue()) {
-            sb.append(String.format("Content-Type: %s\r\n", httpResponse.getContentType().getValue()));
-            sb.append("\r\n");
-            sb.append(String.format("%s\r\n", httpResponse.getBody().getValue().toString()));
-        }
+		if (httpResponse.getBody().hasValue()) {
+			sb.append(String.format("Content-Type: %s\r\n", httpResponse.getContentType().getValue()));
+			sb.append("\r\n");
+			sb.append(String.format("%s\r\n", httpResponse.getBody().getValue().toString()));
+		}
 
-        sb.append("\r\n");
-        return sb.toString();
-    };
+		sb.append("\r\n");
+		return sb.toString();
+	};
 }
 
