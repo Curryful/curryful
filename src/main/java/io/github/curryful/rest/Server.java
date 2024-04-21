@@ -27,6 +27,8 @@ import io.github.curryful.rest.middleware.PreMiddleware;
  */
 public final class Server {
 
+	private static final Long APPLICATION_BEGIN_TIME = Instant.now().toEpochMilli();
+
 	/**
 	 * Pre-middleware that logs the request.
 	 */
@@ -120,6 +122,10 @@ public final class Server {
         var registeredProcess = process.apply(preMiddlewareWithLogging).apply(endpoints).apply(postMiddlewareWithLogging);
 
         try (ServerSocket server = new ServerSocket(port)) {
+			var startupLog = String.format("%s Curryful server started in &dms",
+					LocalDateTime.now(), Instant.now().toEpochMilli() - APPLICATION_BEGIN_TIME);
+			System.out.println(startupLog);
+
             while (true) {
                 var socket = server.accept();
 				var attachedProcess = registeredProcess.apply(socket.getInetAddress());
