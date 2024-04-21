@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import org.junit.jupiter.api.Test;
 
 import io.github.curryful.commons.collections.ImmutableArrayList;
+import io.github.curryful.commons.collections.ImmutableMaybeHashMap;
 import io.github.curryful.commons.collections.MutableArrayList;
 import io.github.curryful.commons.collections.MutableMaybeHashMap;
 import io.github.curryful.rest.http.HttpContext;
@@ -49,7 +50,7 @@ public class RouterTest {
 
 		MutableArrayList<PostMiddleware> postMiddleware = MutableArrayList.empty();
 		postMiddleware.add(context -> response -> {
-			var newResponse = HttpResponse.of(response.getCode(),
+			var newResponse = HttpResponse.of(response.getCode(), ImmutableMaybeHashMap.empty(),
 					context.getHeaders().get("User-Agent").orElse("Unknown"), response.getContentType());
 			return newResponse;
 		});
