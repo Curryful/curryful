@@ -122,7 +122,7 @@ public final class Server {
         var registeredProcess = process.apply(preMiddlewareWithLogging).apply(endpoints).apply(postMiddlewareWithLogging);
 
         try (ServerSocket server = new ServerSocket(port)) {
-			var startupLog = String.format("%s Curryful server started in &dms",
+			var startupLog = String.format("%s Curryful server started in %dms",
 					LocalDateTime.now(), Instant.now().toEpochMilli() - APPLICATION_BEGIN_TIME);
 			System.out.println(startupLog);
 

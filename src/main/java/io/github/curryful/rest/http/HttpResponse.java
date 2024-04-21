@@ -20,6 +20,20 @@ public final class HttpResponse {
 		this.contentType = HttpContentType.NONE;
     }
 
+	private HttpResponse(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers) {
+		this.code = code;
+		this.headers = headers;
+		this.body = Maybe.none();
+		this.contentType = HttpContentType.NONE;
+	}
+
+	private HttpResponse(HttpResponseCode code, String body, HttpContentType contentType) {
+		this.code = code;
+		this.headers = ImmutableMaybeHashMap.empty();
+		this.body = Maybe.just(body);
+		this.contentType = contentType;
+	}
+
     private HttpResponse(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers, String body, HttpContentType contentType) {
         this.code = code;
 		this.headers = headers;
@@ -29,6 +43,14 @@ public final class HttpResponse {
 
 	public static HttpResponse of(HttpResponseCode code) {
 		return new HttpResponse(code);
+	}
+
+	public static HttpResponse of(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers) {
+		return new HttpResponse(code, headers);
+	}
+
+	public static HttpResponse of(HttpResponseCode code, String body, HttpContentType contentType) {
+		return new HttpResponse(code, body, contentType);
 	}
 
 	public static HttpResponse of(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers, String body, HttpContentType contentType) {
