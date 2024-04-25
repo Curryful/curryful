@@ -41,6 +41,13 @@ public final class HttpResponse {
 		this.contentType = contentType;
     }
 
+	private HttpResponse(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers, Maybe<String> body, HttpContentType contentType) {
+		this.code = code;
+		this.headers = headers;
+		this.body = body;
+		this.contentType = contentType;
+	}
+
 	public static HttpResponse of(HttpResponseCode code) {
 		return new HttpResponse(code);
 	}
@@ -54,6 +61,10 @@ public final class HttpResponse {
 	}
 
 	public static HttpResponse of(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers, String body, HttpContentType contentType) {
+		return new HttpResponse(code, headers, body, contentType);
+	}
+
+	public static HttpResponse of(HttpResponseCode code, ImmutableMaybeHashMap<String, String> headers, Maybe<String> body, HttpContentType contentType) {
 		return new HttpResponse(code, headers, body, contentType);
 	}
 
