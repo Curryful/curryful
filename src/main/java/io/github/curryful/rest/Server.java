@@ -7,10 +7,13 @@ import static io.github.curryful.rest.http.Http.serializeResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import io.github.curryful.commons.collections.ImmutableArrayList;
@@ -27,7 +30,10 @@ import io.github.curryful.rest.middleware.PreMiddleware;
  */
 public final class Server {
 
-	private static final Long APPLICATION_BEGIN_TIME = Instant.now().toEpochMilli();
+	private static Supplier<Long> runtime = () -> {
+		RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+		return runtimeBean.getUptime();
+	};
 
 	/**
 	 * Pre-middleware that logs the request.
@@ -122,8 +128,7 @@ public final class Server {
         var registeredProcess = process.apply(preMiddlewareWithLogging).apply(endpoints).apply(postMiddlewareWithLogging);
 
         try (ServerSocket server = new ServerSocket(port)) {
-			var startupLog = String.format("%s Curryful server started in %dms",
-					LocalDateTime.now(), Instant.now().toEpochMilli() - APPLICATION_BEGIN_TIME);
+			var startupLog = String.format("%s Curryful server started in %dms", LocalDateTime.now(), runtime.get());
 			System.out.println(startupLog);
 
             while (true) {
