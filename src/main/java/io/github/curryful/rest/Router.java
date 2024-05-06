@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 
 import io.github.curryful.commons.collections.ImmutableArrayList;
 import io.github.curryful.commons.monads.Maybe;
+import io.github.curryful.commons.monads.Try;
 import io.github.curryful.rest.http.HttpContext;
 import io.github.curryful.rest.http.HttpMethod;
 import io.github.curryful.rest.http.HttpResponse;
@@ -24,11 +25,6 @@ import io.github.curryful.rest.middleware.PreMiddleware;
  * Class to hold functions for routing.
  */
 public final class Router {
-
-	/**
-	 * {@link RestFunction} that returns a 404 response.
-	 */
-    private static final RestFunction notFound = _context -> HttpResponse.of(HttpResponseCode.NOT_FOUND);
 
 	/**
 	 * Processes an HTTP request.
@@ -46,18 +42,19 @@ public final class Router {
 					InetAddress,
 					Function<
 						ImmutableArrayList<String>,
-						HttpResponse
+						Try<HttpResponse>
 					>
 				>
 			>
 		>	
-    > process = preMiddleware -> endpoints -> postMiddleware -> address -> rawHttp -> {
+    > route = preMiddleware -> endpoints -> postMiddleware -> address -> rawHttp -> {
         var method = getMethod.apply(rawHttp.stream());
         var path = getPath.apply(rawHttp.stream());
         var httpMethod = method.flatMap(HttpMethod::fromString);
 
         if (!httpMethod.hasValue() || !path.hasValue()) {
-            return HttpResponse.of(HttpResponseCode.BAD_REQUEST);
+			// http protocol invalid
+            return Try.success(HttpResponse.of(HttpResponseCode.BAD_REQUEST));
         }
 
         var headers = getHeaders.apply(rawHttp.stream());
@@ -70,7 +67,8 @@ public final class Router {
         var endpoint = Maybe.from(endpoints.stream().filter(formalPredicate).findFirst());
 
         if (!endpoint.hasValue()) {
-            return notFound.apply(HttpContext.empty());
+			// endpoint not found
+            return Try.success(HttpResponse.of(HttpResponseCode.NOT_FOUND));
         }
 
         var unpackedEndpoint = endpoint.getValue();
@@ -79,12 +77,19 @@ public final class Router {
 				getPathParameters.apply(formalUri).apply(actualUri), getQueryParameters.apply(actualUri), headers, address, body);
 
 		var reducedPreMiddleware = preMiddleware.stream().reduce(PreMiddleware::andThen);
-		httpContext = Maybe.from(reducedPreMiddleware).orElse(PreMiddleware.none).apply(httpContext);
-        
-		var restFunctionResponse = unpackedEndpoint.getRestFunction().apply(httpContext);
-
 		var reducedPostMiddleware = postMiddleware.stream().reduce(PostMiddleware::andThen);
-		return Maybe.from(reducedPostMiddleware).orElse(PostMiddleware.none).apply(httpContext).apply(restFunctionResponse);
+
+		try {
+			httpContext = Maybe.from(reducedPreMiddleware).orElse(PreMiddleware.none).apply(httpContext);
+			var restFunctionResponse = unpackedEndpoint.getRestFunction().apply(httpContext);
+			restFunctionResponse = Maybe.from(reducedPostMiddleware)
+					.orElse(PostMiddleware.none)
+					.apply(httpContext)
+					.apply(restFunctionResponse);
+			return Try.success(restFunctionResponse);
+		} catch (Throwable t) {
+			return Try.failure(t);
+		}
 	};
 }
 

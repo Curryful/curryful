@@ -1,7 +1,8 @@
 package io.github.curryful.rest;
 
-import static io.github.curryful.rest.Router.process;
+import static io.github.curryful.rest.Router.route;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.net.InetAddress;
 
@@ -27,11 +28,12 @@ public class RouterTest {
 		rawHttp.add("GET / HTTP/1.1");
 
 		// Act
-		HttpResponse response = process.apply(ImmutableArrayList.empty()).apply(ImmutableArrayList.empty())
+		var response = route.apply(ImmutableArrayList.empty()).apply(ImmutableArrayList.empty())
 				.apply(ImmutableArrayList.empty()).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
 
 		// Assert
-		assertEquals(HttpResponseCode.NOT_FOUND, response.getCode());
+		assertFalse(response.isFailure());
+		assertEquals(HttpResponseCode.NOT_FOUND, response.getValue().getCode());
 	}
 
 	public void testProcessMiddleware() {
@@ -59,11 +61,12 @@ public class RouterTest {
 		rawHttp.add("GET / HTTP/1.1");
 
 		// Act
-		HttpResponse response = process.apply(preMiddleware).apply(endpoints)
+		var response = route.apply(preMiddleware).apply(endpoints)
 				.apply(postMiddleware).apply(InetAddress.getLoopbackAddress()).apply(rawHttp);
 
 		// Assert
-		assertEquals("Test", response.getBody().getValue());
+		assertFalse(response.isFailure());
+		assertEquals("Test", response.getValue().getBody().getValue());
 	}
 }
 
