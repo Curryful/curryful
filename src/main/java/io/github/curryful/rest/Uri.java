@@ -14,8 +14,8 @@ import io.github.curryful.commons.collections.MutableMaybeHashMap;
 
 public final class Uri {
 
-    private static final Pattern PATH_PARAMETER_PATTERN = Pattern.compile("(:([^/?]+))");
-    private static final String PATH_PARAMETER_GROUP_PLACEHOLDER_REGEX = "(?<%s>[^/?]+)";
+    private static final Pattern PATH_PARAMETER_PATTERN = Pattern.compile("(:([^/]+))");
+    private static final String PATH_PARAMETER_GROUP_PLACEHOLDER_REGEX = "(?<%s>[^/]+)";
     private static final Pattern QUERY_PARAMETER_PATTERN = Pattern.compile("([^&=]+)=([^&=]+)");
 
     private Uri() {

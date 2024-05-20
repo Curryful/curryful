@@ -18,7 +18,7 @@ public class UriTest {
         var result = replaceFormalParametersWithRegex.apply(uri);
 
         // Assert
-        assertEquals("/hello/(?<name>[^/?]+)", result);
+        assertEquals("/hello/(?<name>[^/]+)", result);
     }
 
     @Test
@@ -30,7 +30,7 @@ public class UriTest {
         var result = replaceFormalParametersWithRegex.apply(uri);
 
         // Assert
-        assertEquals("/hello/(?<name>[^/?]+)/(?<age>[^/?]+)/(?<height>[^/?]+)", result);
+        assertEquals("/hello/(?<name>[^/]+)/(?<age>[^/]+)/(?<height>[^/]+)", result);
     }
 
     @Test
